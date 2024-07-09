@@ -1,32 +1,35 @@
 let weather = {
-  apiKey: "c25d9b190bb4e1f2c742a85f8727f16b",
-  fetchWeather: function (city) {
+  apiKey: "ea8db0057bc9500cc401e005e6f37fe3",
+  fetchWeather: function(city) {
     fetch(
       "https://api.openweathermap.org/data/2.5/weather?q=" +
         city +
         "&units=metric&appid=" +
         this.apiKey
     )
-      .then((response) => {
+      .then(response => {
         if (!response.ok) {
-          alert("No weather found.");
           throw new Error("No weather found.");
         }
         return response.json();
       })
-      .then((data) => this.displayWeather(data));
+      .then(data => this.displayWeather(data))
+      .catch(error => {
+        console.error("Error fetching weather:", error);
+        alert("Error fetching weather. Please try again later.");
+      });
   },
-  displayWeather: function (data) {
+  displayWeather: function(data) {
     const { name } = data;
     const { icon, description } = data.weather[0];
     const { temp, humidity } = data.main;
     const { speed } = data.wind;
-     const minTemp = document.getElementById("min-temp");
-     const maxTemp = document.getElementById("max-temp");
-     const min = data.main.temp_min;
-     minTemp.innerHTML = `Min Temp: ${min.toFixed(1)}&deg;C`;
-        const max = data.main.temp_max;
-       maxTemp.innerHTML = `Max Temp: ${max.toFixed(1)}&deg;C`;
+    const minTemp = document.getElementById("min-temp");
+    const maxTemp = document.getElementById("max-temp");
+    const min = data.main.temp_min;
+    minTemp.innerHTML = `Min Temp: ${min.toFixed(1)}&deg;C`;
+    const max = data.main.temp_max;
+    maxTemp.innerHTML = `Max Temp: ${max.toFixed(1)}&deg;C`;
     document.querySelector(".city").innerText = "Weather in " + name;
     document.querySelector(".icon").src =
       "https://openweathermap.org/img/wn/" + icon + ".png";
@@ -40,19 +43,24 @@ let weather = {
     document.body.style.backgroundImage =
       "url('https://source.unsplash.com/1600x900/?" + name + "')";
   },
-  search: function () {
-    this.fetchWeather(document.querySelector(".search-bar").value);
+  search: function() {
+    const searchBar = document.querySelector(".search-bar");
+    if (searchBar.value) {
+      this.fetchWeather(searchBar.value);
+    } else {
+      alert("Please enter a city name.");
+    }
   },
 };
 
-document.querySelector(".search button").addEventListener("click", function () {
+document.querySelector(".search button").addEventListener("click", function() {
   weather.search();
 });
 
 document
   .querySelector(".search-bar")
-  .addEventListener("keyup", function (event) {
-    if (event.key == "Enter") {
+  .addEventListener("keyup", function(event) {
+    if (event.key === "Enter") {
       weather.search();
     }
   });
